@@ -1,3 +1,4 @@
+#<<<<<<< HEAD
 #!/usr/bin/python 
 #**************************************************************************************
 # VashyTheNexian
@@ -32,6 +33,10 @@ Config.read(configFilename)
 
 HOST = ConfigSectionMap('irc')['host']
 NICK = ConfigSectionMap('irc')['nick']
+PORT = ConfigSectionMap('irc')['port']
+CHANNELINIT = ConfigSectionMap('irc')['channelinit']
+REALNAME = ConfigSectionMap('irc')['realname']
+print HOST + " " + NICK + " " + PORT + " " + CHANNELINIT + " " + REALNAME
 
 
 
@@ -102,3 +107,5 @@ except Exception, err:
 	s.close()
 	exit()
 	"""
+#=======
+#>>>>>>> 38bcccabb2d27767158243e6b628054277f4e5aa
