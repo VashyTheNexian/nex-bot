@@ -10,17 +10,33 @@ import signal # For Ctrl + C signal handler
 import socket
 import string
 import re
-#auth pass: wPvw!lTnxZ
+import ConfigParser
+
+def ConfigSectionMap(section):
+    dict1 = {}
+    options = Config.options(section)
+    for option in options:
+        try:
+            dict1[option] = Config.get(section, option)
+            if dict1[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+	
+
+configFilename = 'settings.config'
+Config = ConfigParser.SafeConfigParser()
+Config.read(configFilename)
+
+HOST = ConfigSectionMap('irc')['host']
+NICK = ConfigSectionMap('irc')['nick']
 
 
-f = open('C:/Users/Hebron/nex-bot/settings.config')
-text = f.read()
-f.close()
 
-
-
-HOST = re.search("HOST:(.+)", text).group(1) #'irc.quakenet.org' #The server the bot's going to connect to
-print HOST
+#HOST = re.search("HOST:(.+)", text).group(1) #'irc.quakenet.org' #The server the bot's going to connect to
+#print HOST
 """
 PORT = 6667 #The connection port is usually 6667
 NICK = 'nex-bot' #The bot's nickname
