@@ -17,12 +17,14 @@ import ConfigParser
 # This function handles the closing of the bot from the CLI using Ctrl+C
 # It makes sure the socket gets closed
 #**************************************************************************************
-def signal_handler(signal, frame):
-	print 'Now exiting because of Ctrl + C'
-	s.close()
-	sys.exit(0)	
+#def signal_handler(signal, frame):
+#	print 'Now exiting because of Ctrl + C'
+#	if s:
+#		s.close()	
+#	s.close()
+#	sys.exit(0)	
 
-signal.signal(signal.SIGINT, signal_handler)
+#signal.signal(signal.SIGINT, signal_handler)
 
 #**************************************************************************************
 # After NICK, the server sends PING :<random number> to you, which has to be replied with 
@@ -79,31 +81,37 @@ s.connect((HOST, PORT))
 if s is None:
 	print "Socket error while connecting"
 	exit()
-	
-try :
-	line = s.recv(512) #s.recv() will never return None
-	while (line != ""):
-		print line #server message is output to screen
-		if line.find("No ident response") != -1:
-			sUSERNICK(s, NICK)
-			
-		if line.find("PING :") != -1:
-			pingrequest = re.search("PING :(.+)", line)
-			s.send("PONG :" + pingrequest.group(1))
-			s.send('USER ' +NICK + ' ' + NICK + ' ' + NICK + ' : ' + REALNAME + '\r\n')
-			s.send('AUTH ' + NICK + ' ' + PASS + '\r\n')
-			s.send('JOIN #'+CHANNELINIT + "\r\n") #Joins default channel
-			
-		if line.find("001") != -1:
-			print "Successfully connected!"
-			
-		if line.find("Hello " + NICK) != -1:
-			s.send("Hello! :) I am nex-bot <3")
-		line = s.recv(512)		
-	s.close()
-	print "Exiting now"
-	exit()
-except Exception, err:
-	print "MY ERROR: " + str(err)
-	s.close()
-	exit()
+
+try:
+	try :
+		line = s.recv(512) #s.recv() will never return None
+		while (line != ""):
+			print line #server message is output to screen
+			if line.find("No ident response") != -1:
+				sUSERNICK(s, NICK)
+				
+			if line.find("PING :") != -1:
+				pingrequest = re.search("PING :(.+)", line)
+				s.send("PONG :" + pingrequest.group(1))
+				s.send('USER ' +NICK + ' ' + NICK + ' ' + NICK + ' : ' + REALNAME + '\r\n')
+				s.send('AUTH ' + NICK + ' ' + PASS + '\r\n')
+				s.send('JOIN #'+CHANNELINIT + "\r\n") #Joins default channel
+				
+			if line.find("001") != -1:
+				print "Successfully connected!"
+				
+			if line.find("Hello " + NICK) != -1:
+				s.send("Hello! :) I am nex-bot <3")
+			line = s.recv(512)		
+		s.close()
+		print "Exiting now"
+		exit()
+	except Exception, err:
+		print "MY ERROR: " + str(err)
+		s.close()
+		exit()
+except KeyboardInterrupt:
+	print "Forced exit from user"
+	if s:
+		s.close()
+	sys.exit(0)
