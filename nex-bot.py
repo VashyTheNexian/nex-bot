@@ -24,7 +24,11 @@ def ConfigSectionMap(section):
             print("exception on %s!" % option)
             dict1[option] = None
     return dict1
+<<<<<<< HEAD
 	
+=======
+  
+>>>>>>> 84eac978a6c5a00d0749dd504725b4fb93290187
 
 configFilename = 'settings.config'
 Config = ConfigParser.SafeConfigParser()
@@ -32,10 +36,13 @@ Config.read(configFilename)
 
 HOST = ConfigSectionMap('irc')['host']
 NICK = ConfigSectionMap('irc')['nick']
+<<<<<<< HEAD
 PORT = ConfigSectionMap('irc')['port']
 CHANNELINIT = ConfigSectionMap('irc')['channelinit']
 REALNAME = ConfigSectionMap('irc')['realname']
 print HOST + " " + NICK + " " + PORT + " " + CHANNELINIT + " " + REALNAME
+=======
+>>>>>>> 84eac978a6c5a00d0749dd504725b4fb93290187
 
 
 
@@ -105,4 +112,8 @@ except Exception, err:
 	print "MY ERROR: " + str(err)
 	s.close()
 	exit()
+<<<<<<< HEAD
 	"""
+=======
+	"""
+>>>>>>> 84eac978a6c5a00d0749dd504725b4fb93290187
