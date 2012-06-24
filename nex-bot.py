@@ -12,75 +12,34 @@ import string
 import re
 import ConfigParser
 
-def ConfigSectionMap(section):
-    dict1 = {}
-    options = Config.options(section)
-    for option in options:
-        try:
-            dict1[option] = Config.get(section, option)
-            if dict1[option] == -1:
-                DebugPrint("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
-<<<<<<< HEAD
-	
-=======
-  
->>>>>>> 84eac978a6c5a00d0749dd504725b4fb93290187
 
+	
+#**************************************************************************************
+# Setup ConfigParser object
+#**************************************************************************************
 configFilename = 'settings.config'
 Config = ConfigParser.SafeConfigParser()
 Config.read(configFilename)
 
+#**************************************************************************************
+# Pull data from config file
+#**************************************************************************************
 HOST = ConfigSectionMap('irc')['host']
 NICK = ConfigSectionMap('irc')['nick']
-<<<<<<< HEAD
 PORT = ConfigSectionMap('irc')['port']
 CHANNELINIT = ConfigSectionMap('irc')['channelinit']
 REALNAME = ConfigSectionMap('irc')['realname']
-print HOST + " " + NICK + " " + PORT + " " + CHANNELINIT + " " + REALNAME
-=======
->>>>>>> 84eac978a6c5a00d0749dd504725b4fb93290187
-
-
-
-#HOST = re.search("HOST:(.+)", text).group(1) #'irc.quakenet.org' #The server the bot's going to connect to
-#print HOST
-"""
-PORT = 6667 #The connection port is usually 6667
-NICK = 'nex-bot' #The bot's nickname
-REALNAME = 'nex-bot'
-PASS = 'wPvw!lTnxZ'
-CHANNELINIT = 'siralim' #The default channel for the bot
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Create the socket
-s.connect((HOST, PORT)) #Connect to server
-
-
+PASS = ConfigSectionMap('irc')['pass']
 
 #**************************************************************************************
-# After NICK, the server sends PING :<random number> to you, which has to be replied with 
-# PONG :<same number>. Then you may send USER, the registration process is done 
-# and raw 001 or an ERROR (klined, server full, etc.) is sent to you. The server also sends 
-#PINGs in the same way with a certain interval, which have to be replied in the same way.
+# Create socket and connect to server
 #**************************************************************************************
-def sUSERNICK(s, NICK):
-	IDENT = 'pybot'
-	OWNER = 'Vashy' #The bot's owner's name
-	s.send('NICK '+NICK + "\r\n") #Sends the nickname to the server
-
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+s.connect((HOST, PORT))
 
 #**************************************************************************************
-# This function handles the closing of the bot from the CLI using Ctrl+C
-# It makes sure the socket gets closed
+# If socket is null, exit
 #**************************************************************************************
-def signal_handler(signal, frame):
-	print 'Now exiting because of Ctrl + C'
-	s.close()
-	sys.exit(0)
-	
 if s is None:
 	print "Socket error while connecting"
 	exit()
@@ -112,8 +71,38 @@ except Exception, err:
 	print "MY ERROR: " + str(err)
 	s.close()
 	exit()
-<<<<<<< HEAD
-	"""
-=======
-	"""
->>>>>>> 84eac978a6c5a00d0749dd504725b4fb93290187
+	
+#**************************************************************************************
+# After NICK, the server sends PING :<random number> to you, which has to be replied with 
+# PONG :<same number>. Then you may send USER, the registration process is done 
+# and raw 001 or an ERROR (klined, server full, etc.) is sent to you. The server also sends 
+#PINGs in the same way with a certain interval, which have to be replied in the same way.
+#**************************************************************************************
+def sUSERNICK(s, NICK):
+	s.send('NICK '+NICK + "\r\n")
+	
+	
+#**************************************************************************************
+# This function returns the desired value from the config file
+#**************************************************************************************
+def ConfigSectionMap(section):
+    dict1 = {}
+    options = Config.options(section)
+    for option in options:
+        try:
+            dict1[option] = Config.get(section, option)
+            if dict1[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+	
+#**************************************************************************************
+# This function handles the closing of the bot from the CLI using Ctrl+C
+# It makes sure the socket gets closed
+#**************************************************************************************
+def signal_handler(signal, frame):
+	print 'Now exiting because of Ctrl + C'
+	s.close()
+	sys.exit(0)
