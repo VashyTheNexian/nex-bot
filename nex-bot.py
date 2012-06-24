@@ -12,7 +12,18 @@ import string
 import re
 import ConfigParser
 
-	
+
+#**************************************************************************************
+# This function handles the closing of the bot from the CLI using Ctrl+C
+# It makes sure the socket gets closed
+#**************************************************************************************
+def signal_handler(signal, frame):
+	print 'Now exiting because of Ctrl + C'
+	s.close()
+	sys.exit(0)	
+
+signal.signal(signal.SIGINT, signal_handler)
+
 #**************************************************************************************
 # After NICK, the server sends PING :<random number> to you, which has to be replied with 
 # PONG :<same number>. Then you may send USER, the registration process is done 
@@ -40,15 +51,6 @@ def ConfigSectionMap(section):
     return dict1
 	
 #**************************************************************************************
-# This function handles the closing of the bot from the CLI using Ctrl+C
-# It makes sure the socket gets closed
-#**************************************************************************************
-def signal_handler(signal, frame):
-	print 'Now exiting because of Ctrl + C'
-	s.close()
-	sys.exit(0)
-	
-#**************************************************************************************
 # Setup ConfigParser object
 #**************************************************************************************
 configFilename = 'settings.config'
@@ -58,12 +60,12 @@ Config.read(configFilename)
 #**************************************************************************************
 # Pull data from config file
 #**************************************************************************************
-HOST = ConfigSectionMap('irc')['host'].strip()
-NICK = ConfigSectionMap('irc')['nick'].strip()
-PORT = int(ConfigSectionMap('irc')['port'].strip())
-CHANNELINIT = ConfigSectionMap('irc')['channelinit'].strip()
-REALNAME = ConfigSectionMap('irc')['realname'].strip()
-PASS = ConfigSectionMap('irc')['pass'].strip()
+HOST = ConfigSectionMap('irc')['host']
+NICK = ConfigSectionMap('irc')['nick']
+PORT = int(ConfigSectionMap('irc')['port'])
+CHANNELINIT = ConfigSectionMap('irc')['channelinit']
+REALNAME = ConfigSectionMap('irc')['realname']
+PASS = ConfigSectionMap('irc')['pass']
 
 #**************************************************************************************
 # Create socket and connect to server
@@ -71,7 +73,6 @@ PASS = ConfigSectionMap('irc')['pass'].strip()
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 s.connect((HOST, PORT))
 
-signal.signal(signal.SIGINT, signal_handler)
 #**************************************************************************************
 # If socket is null, exit
 #**************************************************************************************
