@@ -6,25 +6,10 @@
 #
 #**************************************************************************************
 import sys
-import signal # For Ctrl + C signal handler
 import socket
 import string
 import re
 import ConfigParser
-
-
-#**************************************************************************************
-# This function handles the closing of the bot from the CLI using Ctrl+C
-# It makes sure the socket gets closed
-#**************************************************************************************
-#def signal_handler(signal, frame):
-#	print 'Now exiting because of Ctrl + C'
-#	if s:
-#		s.close()	
-#	s.close()
-#	sys.exit(0)	
-
-#signal.signal(signal.SIGINT, signal_handler)
 
 #**************************************************************************************
 # After NICK, the server sends PING :<random number> to you, which has to be replied with 
@@ -34,7 +19,6 @@ import ConfigParser
 #**************************************************************************************
 def sUSERNICK(s, NICK):
 	s.send('NICK '+NICK + "\r\n")
-	
 	
 #**************************************************************************************
 # This function returns the desired value from the config file
