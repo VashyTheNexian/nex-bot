@@ -10,15 +10,20 @@ import socket
 import string
 import re
 import ConfigParser
-
+import datetime
 #**************************************************************************************
 # After NICK, the server sends PING :<random number> to you, which has to be replied with 
 # PONG :<same number>. Then you may send USER, the registration process is done 
 # and raw 001 or an ERROR (klined, server full, etc.) is sent to you. The server also sends 
 #PINGs in the same way with a certain interval, which have to be replied in the same way.
 #**************************************************************************************
-def sUSERNICK(s, NICK):
-	s.sendall('NICK '+NICK + "\r\n")
+def USERNICK(s, NICK):
+	s.send('NICK '+NICK + "\r\n")
+	
+def PONG(s, line):
+	pingrequest = re.search("PING :(.+)", line)
+	print ('Sending: PONG : ' + pingrequest.group(1))
+	s.sendall('PONG ' + pingrequest.group(1) + '\r\n')
 	
 #**************************************************************************************
 # This function returns the desired value from the config file
@@ -61,6 +66,7 @@ PASS = ConfigSectionMap('irc')['pass']
 try:
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 	s.connect((HOST, PORT))
+	f = s.makefile()
 except Exception, err:
 	print "Error connecting to " + HOST
 	print str(err)
@@ -72,48 +78,74 @@ except Exception, err:
 if s is None:
 	print "Socket error while connecting"
 	exit()
+	
+#**************************************************************************************
+# Bot execution
+#**************************************************************************************
 if s:
 	try:
 		try :
-			line = s.recv(512)
+			line = f.readline().rstrip()
 			while (line != ""):
-			
 				print line #server message is output to console
 				
+				if len(line.split(':')) >= 3:
+					user = re.search(':(.+)!.+', line)
+					if user is not None:
+						user = user.group(1)
+					channel = line.split(' ')[2]
+					
 				if line.find("No ident response") != -1:
-					sUSERNICK(s, NICK)
+					USERNICK(s, NICK)
 				
-				if line.find("PING :") != -1:
-					pingrequest = re.search("PING :(.+)", line)
-					s.sendall("PONG :" + pingrequest.group(1))
-					s.sendall('USER ' +NICK + ' ' + NICK + ' ' + NICK + ' : ' + REALNAME + '\r\n')
-					s.sendall('AUTH ' + NICK + ' ' + PASS + '\r\n')
+				elif line.find("PING :") != -1:
+					PONG(s, line)
+					s.send('USER ' +NICK + ' ' + NICK + ' ' + NICK + ' : ' + REALNAME + '\r\n')
+					s.send('AUTH ' + NICK + ' ' + PASS + '\r\n')
 					
-				if line.find("001") != -1:
-					s.sendall('JOIN #'+CHANNELINIT + "\r\n") #Joins default channel
+				elif line.find("001") != -1:
+					s.send('JOIN #'+CHANNELINIT + "\r\n") #Joins default channel
 					
-				if line.split(':')[2] == NICK + " quitplz":
-					s.sendall("PRIVMSG " + line.split(' ')[2] + " :Adios muchachos")
-					s.sendall("QUIT")
-					s.close()
-					sys.exit(0)
-				
-				if line.find("Hello " + NICK) != -1:
-					print("PRIVMSG " + line.split(' ')[2] + " :Hello! :) I am nex-bot <3")
-					s.sendall("PRIVMSG " + line.split(' ')[2] + " :Hello! :) I am nex-bot <3")
-				count = 1
-				count = count + 1
-				line = s.recv(512)		
+				elif line.find(NICK + ' quitplz') != -1:
+					if len(line.split(':')) >= 3 and line.split(':')[2] == NICK + " quitplz":
+						#user = re.search(':(.+)!.+', line).group(1)
+						if (user == 'Vashy'):
+							channel = line.split(' ')[2]
+							s.send("PRIVMSG " + channel + " :Adios muchachos\r\n")
+							s.send("QUIT")
+							s.close()
+							sys.exit(0)
+				elif line.find(NICK + ' rejoinplz') != -1:
+					if len(line.split(':')) >= 3 and line.split(':')[2] == NICK + ' rejoinplz':
+						#user = re.search(':
+						if (user == 'Vashy'):
+							s.sendall('QUIT \r\n')
+							s.connect((HOST, PORT))
+							f = s.makefile()
+				#:Vashy!~Vash@173.168.202.248 PRIVMSG #siralim :nex-bot quitplz
+				elif line.find("Hello " + NICK) != -1:
+					channel = line.split(' ')[2]
+					user = re.search(':(.+)!.+', line).group(1)
+					s.sendall("PRIVMSG " + channel + " :Hello, " + user + "\r\n")
+					
+				elif len(line.split(':')) > 2:
+					if line.split(':')[2] == NICK + ' servertimeplz':
+						channel = line.split(' ')[2]
+						user = re.search(':(.+)!.+', line).group(1)
+						now = datetime.datetime.now()
+						s.sendall("PRIVMSG " + channel + ' :' + user + ': Server time: ' + str(now)[:19] + ' \r\n')
+				line = f.readline().rstrip()	
 			s.close()
 			print "Exiting now"
 			exit()
 		except Exception, err:
 			print "MY ERROR: " + str(err)
+			s.sendall("QUIT \r\n")
 			s.close()
 			sys.exit(0)
 	except KeyboardInterrupt:
 		print "Forced exit from user"
 		if s:
-			s.sendall("QUIT")
+			s.sendall("QUIT \r\n")
 			s.close()
 		sys.exit(0)
